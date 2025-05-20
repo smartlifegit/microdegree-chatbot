@@ -5,6 +5,12 @@ import os
 app = Flask(__name__)
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
+from flask import send_from_directory
+
+@app.route("/chat.html")
+def chat_page():
+    return send_from_directory('.', 'chat.html')
+
 @app.route("/ask", methods=["POST"])
 def ask():
     user_msg = request.json.get("message")
