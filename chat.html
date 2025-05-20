@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>마이크로디그리 챗봇</title>
+  <style>
+    body { font-family: sans-serif; background: #f8fafc; }
+    #chat-window { border: 1px solid #ccc; background: #fff; padding: 10px; height: 400px; overflow-y: auto; margin-bottom: 10px; border-radius:8px;}
+    #user-input { width: 70%; padding:8px; }
+    #send-btn { padding:8px 16px; background:#1565c0; color:white; border:none; border-radius:5px;}
+  </style>
+</head>
+<body>
+  <h2>마이크로디그리 챗봇</h2>
+  <div id="chat-window"></div>
+  <input id="user-input" placeholder="질문을 입력하세요..." onkeydown="if(event.key==='Enter'){sendMsg();}">
+  <button id="send-btn" onclick="sendMsg()">전송</button>
+
+  <script>
+    function sendMsg() {
+      const msg = document.getElementById('user-input').value.trim();
+      if (!msg) return;
+      const chatWin = document.getElementById('chat-window');
+      chatWin.innerHTML += `<div><b>나:</b> ${msg}</div>`;
+      document.getElementById('user-input').value = '';
+      fetch('https://microdegree-chatbot.onrender.com/ask', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: msg})
+      })
+      .then(res => res.json())
+      .then(data => {
+        chatWin.innerHTML += `<div><b>챗봇:</b> ${data.answer}</div>`;
+        chatWin.scrollTop = chatWin.scrollHeight;
+      })
+      .catch(e => {
+        chatWin.innerHTML += `<div style="color:red;">[서버 오류]</div>`;
+      });
+    }
+  </script>
+</body>
+</html>
