@@ -1,42 +1,128 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>마이크로디그리 챗봇</title>
-  <style>
-    body { font-family: sans-serif; background: #f8fafc; }
-    #chat-window { border: 1px solid #ccc; background: #fff; padding: 10px; height: 400px; overflow-y: auto; margin-bottom: 10px; border-radius:8px;}
-    #user-input { width: 70%; padding:8px; }
-    #send-btn { padding:8px 16px; background:#1565c0; color:white; border:none; border-radius:5px;}
-  </style>
+    <meta charset="UTF-8">
+    <title>마이크로디그리 챗봇</title>
+    <style>
+        body {
+            font-family: '맑은 고딕', Arial, sans-serif;
+            background: #f9fafb;
+            margin: 0;
+            padding: 0;
+        }
+        .wrapper {
+            width: 100%;
+            max-width: 480px;
+            margin: 30px auto;
+            padding: 0 12px;
+        }
+        h1 {
+            font-size: 1.5em;
+            margin: 0 0 10px 0;
+            color: #23255f;
+            letter-spacing: -1px;
+        }
+        .desc {
+            color: #444;
+            font-size: 15px;
+            margin-bottom: 18px;
+        }
+        #chatbox {
+            min-height: 180px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+        .msg-user {
+            color: #2c5282;
+            margin: 6px 0 0 0;
+            font-weight: bold;
+        }
+        .msg-bot {
+            color: #222;
+            margin-bottom: 8px;
+        }
+        .error {
+            color: #e53e3e;
+            margin-bottom: 8px;
+        }
+        #chatForm {
+            display: flex;
+            gap: 7px;
+            margin-top: 3px;
+        }
+        #userInput {
+            flex: 1;
+            font-size: 16px;
+            padding: 7px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #sendBtn {
+            padding: 7px 16px;
+            font-size: 15px;
+            color: #fff;
+            background: #6366f1;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.17s;
+        }
+        #sendBtn:hover {
+            background: #4749b8;
+        }
+    </style>
 </head>
 <body>
-  <h2>마이크로디그리 챗봇</h2>
-  <div id="chat-window"></div>
-  <input id="user-input" placeholder="질문을 입력하세요..." onkeydown="if(event.key==='Enter'){sendMsg();}">
-  <button id="send-btn" onclick="sendMsg()">전송</button>
+<div class="wrapper">
+    <h1>마이크로디그리 챗봇</h1>
+    <div class="desc">
+        마이크로디그리에 대한 간단한 안내 및 질문 답변 챗봇입니다.<br>
+        <span style="font-size:14px;">예) “마이크로디그리란?”, “신청 자격”, “프로그램 종류?”</span>
+    </div>
+    <div id="chatbox"></div>
+    <form id="chatForm" autocomplete="off">
+        <input type="text" id="userInput" placeholder="질문을 입력하세요..." autofocus required>
+        <button type="submit" id="sendBtn">전송</button>
+    </form>
+</div>
+<script>
+const chatbox = document.getElementById('chatbox');
+const chatForm = document.getElementById('chatForm');
+const userInput = document.getElementById('userInput');
 
-  <script>
-    function sendMsg() {
-      const msg = document.getElementById('user-input').value.trim();
-      if (!msg) return;
-      const chatWin = document.getElementById('chat-window');
-      chatWin.innerHTML += `<div><b>나:</b> ${msg}</div>`;
-      document.getElementById('user-input').value = '';
-      fetch('https://microdegree-chatbot.onrender.com/ask', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({message: msg})
-      })
-      .then(res => res.json())
-      .then(data => {
-        chatWin.innerHTML += `<div><b>챗봇:</b> ${data.answer}</div>`;
-        chatWin.scrollTop = chatWin.scrollHeight;
-      })
-      .catch(e => {
-        chatWin.innerHTML += `<div style="color:red;">[서버 오류]</div>`;
-      });
+function addMessage(text, sender, isError=false) {
+    const msg = document.createElement('div');
+    msg.className = sender === 'user' ? 'msg-user' : (isError ? 'error' : 'msg-bot');
+    msg.textContent = (sender === 'user' ? '나: ' : '챗봇: ') + text;
+    chatbox.appendChild(msg);
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const text = userInput.value.trim();
+    if (!text) return;
+    addMessage(text, 'user');
+    userInput.value = '';
+    try {
+        const res = await fetch('https://microdegree-chatbot.onrender.com/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            addMessage(data.answer, 'bot');
+        } else {
+            addMessage('[서버 오류]', 'bot', true);
+        }
+    } catch (err) {
+        addMessage('[서버 오류]', 'bot', true);
     }
-  </script>
+});
+</script>
 </body>
 </html>
