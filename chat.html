@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>마이크로디그리 챗봇</title>
+    <!-- 모바일 대응 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <style>
         body {
             font-family: '맑은 고딕', Arial, sans-serif;
@@ -72,6 +75,25 @@
         }
         #sendBtn:hover {
             background: #4749b8;
+        }
+        /* 모바일 대응 */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.15em;
+            }
+            .desc {
+                font-size: 13px;
+            }
+            #chatbox {
+                font-size: 15px;
+            }
+            #userInput, #sendBtn {
+                font-size: 16px;
+            }
+            .wrapper {
+                padding: 0 3vw;
+                margin: 18px auto;
+            }
         }
     </style>
 </head>
